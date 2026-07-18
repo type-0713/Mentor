@@ -50,6 +50,7 @@ export type SpinResult = {
   label: string;
   coins: number;
   premiumDays: number;
+  sectorIndex: number;
   wallet: Wallet;
 };
 
@@ -70,7 +71,7 @@ const LANGUAGE_KEY = `${STORAGE_PREFIX}language`;
 const THEME_KEY = `${STORAGE_PREFIX}theme`;
 
 const defaultWallet: Wallet = {
-  tCoins: 40,
+  tCoins: 0,
   premiumUntil: "",
   premiumBadge: false,
   spinTickets: 0,
@@ -305,10 +306,27 @@ export const applyThemeMode = (mode: ThemeMode) => {
   document.documentElement.dataset.theme = resolved;
 };
 
-export const getWallet = (userId = getSessionUser().id): Wallet => ({
-  ...defaultWallet,
-  ...readJson<Partial<Wallet>>(walletStorageKey(userId), {}),
-});
+const sanitizeWallet = (wallet: Wallet): Wallet => {
+  const premiumTime = wallet.premiumUntil ? new Date(wallet.premiumUntil).getTime() : 0;
+  const premiumActive = Number.isFinite(premiumTime) && premiumTime > Date.now();
+
+  return {
+    ...wallet,
+    tCoins: Math.max(0, Number(wallet.tCoins) || 0),
+    premiumUntil: premiumActive ? wallet.premiumUntil : "",
+    premiumBadge: premiumActive,
+    spinTickets: Math.max(0, Number(wallet.spinTickets) || 0),
+    loginStreak: Math.max(0, Number(wallet.loginStreak) || 0),
+    rewardedEvents: Array.isArray(wallet.rewardedEvents) ? wallet.rewardedEvents : [],
+    transactions: Array.isArray(wallet.transactions) ? wallet.transactions : [],
+  };
+};
+
+export const getWallet = (userId = getSessionUser().id): Wallet =>
+  sanitizeWallet({
+    ...defaultWallet,
+    ...readJson<Partial<Wallet>>(walletStorageKey(userId), {}),
+  });
 
 export const saveWallet = (wallet: Wallet, userId = getSessionUser().id) => {
   writeJson(walletStorageKey(userId), wallet);
@@ -460,10 +478,11 @@ export const spinLuckyWheel = (userId = getSessionUser().id): SpinResult => {
   const usesTicket = wallet.dailySpinDate === today;
 
   if (usesTicket && wallet.spinTickets <= 0) {
-    return { ok: false, label: "Bugungi bepul spin ishlatilgan.", coins: 0, premiumDays: 0, wallet };
+    return { ok: false, label: "Bugungi bepul spin ishlatilgan.", coins: 0, premiumDays: 0, sectorIndex: -1, wallet };
   }
 
-  const sector = sectors[Math.floor(Math.random() * sectors.length)];
+  const sectorIndex = Math.floor(Math.random() * sectors.length);
+  const sector = sectors[sectorIndex];
   const afterCost: Wallet = {
     ...wallet,
     dailySpinDate: usesTicket ? wallet.dailySpinDate : today,
@@ -482,7 +501,14 @@ export const spinLuckyWheel = (userId = getSessionUser().id): SpinResult => {
   const savedWallet = saveWallet(withCoins, userId);
   const finalWallet = sector.premiumDays ? activatePremium(sector.premiumDays, "Lucky Spin premium", userId) : savedWallet;
 
-  return { ok: true, label: sector.label, coins: sector.coins, premiumDays: sector.premiumDays, wallet: finalWallet };
+  return {
+    ok: true,
+    label: sector.label,
+    coins: sector.coins,
+    premiumDays: sector.premiumDays,
+    sectorIndex,
+    wallet: finalWallet,
+  };
 };
 
 export const normalizeCourseModules = (course: CourseRecord): CourseModule[] => {
