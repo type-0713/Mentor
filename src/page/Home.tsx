@@ -1,112 +1,102 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getCurrentRole } from "../utils/auth";
+import { SUPPORT_PHONE, TELEGRAM_CHANNEL_URL } from "../utils/platform";
+import "../index.css";
+import logo from "../assets/mentor-logo.svg";
+
 const Home = () => {
-    return (
-        <div>
-            <nav className="p-3 d-flex justify-content-between align-items-center bg-dark" style={{ height: "110px" }}>
-                <Link style={{ textDecorationLine: "none" }} to={"/"}><img width={70} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh3RBHLLis73dsYpEC0avXd9Bz9RCRYL8TdQ&s" /></Link>
-                <div>
-                    <Link className='btn btn-primary' to={"/signUp"}>Sign Up</Link>
-                </div>
-            </nav>
-            <div
-                style={{
-                    backgroundColor: "#f4f6fb",
-                    padding: "80px 60px",
-                    display: "flex",
-                    gap: "60px",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    fontFamily: "Arial, sans-serif",
-                    height:820
-                }}
-            >
-                <div style={{ maxWidth: "520px" }}>
-                    <h1
-                        style={{
-                            fontSize: "60px",
-                            fontWeight: "800",
-                            color: "#111827",
-                            marginBottom: "20px",
-                        }}
-                    >
-                        Shift Academy
-                    </h1>
+  const navigate = useNavigate();
 
-                    <p
-                        style={{
-                            fontSize: "22px",
-                            color: "#4b5563",
-                            marginBottom: "16px",
-                        }}
-                    >
-                        Bepul IT-ta’lim <br /> quyidagilarni xohlaydiganlar uchun:
-                    </p>
+  useEffect(() => {
+    const role = getCurrentRole();
+    if (role === "admin") {
+      navigate("/Admin");
+    }
 
-                    <p
-                        style={{
-                            color: "#6d28d9",
-                            fontWeight: "600",
-                            marginBottom: "28px",
-                        }}
-                    >
-                        <a href="https://www.instagram.com/shiftacademyuz?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
-                            Instagram
-                        </a>
-                    </p>
-                    <p
-                        style={{
-                            color: "#6d28d9",
-                            fontWeight: "600",
-                            marginBottom: "28px",
-                        }}
-                    >
-                        <a href="https://t.me/shiftacademyuz">Telegram</a>
-                    </p>
+    if (role === "user") {
+      navigate("/User");
+    }
 
-                    <Link
-                        className="btn"
-                        to={"/signUp"}
-                        style={{
-                            backgroundColor: "#4ade80",
-                            border: "none",
-                            borderRadius: "12px",
-                            padding: "14px 32px",
-                            fontSize: "16px",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            marginBottom: "32px",
-                        }}
-                    >
-                        O‘qishga kirishni xohlayman
-                    </Link>
+    if (role === "teacher") {
+      navigate("/Teacher");
+    }
+  }, [navigate]);
 
-                    <ul
-                        style={{
-                            paddingLeft: "18px",
-                            color: "#374151",
-                            lineHeight: "1.8",
-                        }}
-                    >
-                        <li>Ish yoki o‘qish bilan birga olib borish mumkin</li>
-                        <li>Tengdosh — tengdoshga” metodikasi</li>
-                        <li>Kuchli IT hamjamiyati</li>
-                        <li>Ishga joylashishda yordam</li>
-                    </ul>
-                </div>
-                <div>
-                    <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh3RBHLLis73dsYpEC0avXd9Bz9RCRYL8TdQ&s"
-                        alt="students"
-                        style={{
-                            width: "520px",
-                            height: "420px",
-                            objectFit: "cover",
-                            borderRadius: "32px",
-                        }}
-                    />
-                </div>
+  return (
+    <div className="home-premium">
+      <nav className="home-nav">
+        <Link to="/" className="mentor-brand">
+          <img src={logo} alt="Mentor.uz" />
+          <span>Mentor.uz</span>
+        </Link>
+        <div className="d-flex gap-2 align-items-center">
+          <Link className="btn btn-outline-dark rounded-pill px-4" to="/signIn">Sign In</Link>
+          <Link className="btn btn-mentor-primary rounded-pill px-4" to="/signUp">Sign Up</Link>
+        </div>
+      </nav>
+
+      <section className="home-hero">
+        <div className="home-copy">
+          <span className="section-kicker">IT ta'lim, test, sertifikat va T-Coin</span>
+          <h1>Mentor.uz</h1>
+          <p>
+            Modulli kurslar, majburiy testlar, avtomatik sertifikatlar, Lucky Spin, reyting va premium AI Ustoz
+            bilan o'qishni aniq natijaga bog'laydigan platforma.
+          </p>
+          <div className="d-flex gap-3 flex-wrap">
+            <Link to="/signUp" className="btn btn-mentor-primary btn-lg rounded-pill px-5">
+              O'qishni boshlash
+            </Link>
+            <a href={TELEGRAM_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg rounded-pill px-5">
+              <i className="bi bi-telegram me-2"></i> Telegram
+            </a>
+          </div>
+          <div className="home-feature-row">
+            <span><i className="bi bi-patch-check"></i> 70% pass test</span>
+            <span><i className="bi bi-coin"></i> T-Coin rewards</span>
+            <span><i className="bi bi-filetype-pdf"></i> PDF certificate</span>
+          </div>
+        </div>
+
+        <div className="product-preview" aria-label="Mentor.uz dashboard preview">
+          <div className="preview-top">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div className="preview-grid">
+            <div className="preview-metric">
+              <strong>86%</strong>
+              <span>Haftalik progress</span>
             </div>
-        </div >
-    );
-}
+            <div className="preview-metric dark">
+              <strong>250</strong>
+              <span>T-Coin Premium</span>
+            </div>
+            <div className="preview-chart">
+              <i style={{ height: "55%" }}></i>
+              <i style={{ height: "78%" }}></i>
+              <i style={{ height: "45%" }}></i>
+              <i style={{ height: "92%" }}></i>
+              <i style={{ height: "68%" }}></i>
+            </div>
+            <div className="preview-list">
+              <span><b></b> AI Teacher</span>
+              <span><b></b> Premium chat</span>
+              <span><b></b> TOP 100 ranking</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-strip">
+        <span><i className="bi bi-person-video3"></i> O'qituvchi kurs yaratadi</span>
+        <span><i className="bi bi-trophy"></i> Testdan o'tganlarga sertifikat</span>
+        <span><i className="bi bi-headset"></i> Admin: {SUPPORT_PHONE}</span>
+      </section>
+    </div>
+  );
+};
+
 export default Home;
